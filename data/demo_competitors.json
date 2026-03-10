@@ -1,0 +1,12 @@
+{
+  "_comment": "Demo configuration — uses only local file sources, no internet or API keys required.",
+  "competitors": [
+    {
+      "name": "LocalCompetitor",
+      "source_type": "file",
+      "url": "data/local_prices.json",
+      "product_key": "name",
+      "price_key": "price"
+    }
+  ]
+}

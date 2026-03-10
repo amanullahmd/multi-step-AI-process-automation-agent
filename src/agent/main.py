@@ -11,7 +11,7 @@ Usage:
 import asyncio
 import json
 import logging
-import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -41,6 +41,25 @@ def _setup_logging(level: str = "INFO") -> None:
     )
 
 
+def _configure_langsmith(settings) -> None:
+    """Configure LangSmith tracing if enabled.
+
+    LangSmith provides observability for LangGraph runs — it captures
+    each node's inputs/outputs, token usage, and latency so you can
+    debug and optimise the agent pipeline from a web dashboard.
+
+    Set LANGCHAIN_TRACING_V2=true and LANGCHAIN_API_KEY in your .env
+    to enable. The project name is set via LANGCHAIN_PROJECT.
+    """
+    if settings.langchain_tracing_v2 and settings.langchain_api_key:
+        os.environ["LANGCHAIN_TRACING_V2"] = "true"
+        os.environ["LANGCHAIN_API_KEY"] = settings.langchain_api_key
+        os.environ["LANGCHAIN_PROJECT"] = settings.langchain_project
+        console.print(
+            f"[dim]LangSmith tracing enabled — project: {settings.langchain_project}[/dim]"
+        )
+
+
 def _load_competitors(config_path: Path) -> list[CompetitorSource]:
     """Load competitor sources from a JSON config file."""
     if not config_path.exists():
@@ -56,15 +75,23 @@ def _load_competitors(config_path: Path) -> list[CompetitorSource]:
     return sources
 
 
-async def _run_agent(competitors: list[CompetitorSource], report_format: ReportFormat) -> None:
+async def _run_agent(
+    competitors: list[CompetitorSource],
+    report_format: ReportFormat,
+    demo_mode: bool = False,
+) -> None:
     """Execute the agent graph."""
     initial_state = AgentState(
         competitors=competitors,
         report_format=report_format,
         run_timestamp=datetime.now(),
+        demo_mode=demo_mode,
+        # Auto-approve HITL in demo runs so the graph completes without interaction
+        hitl_approved=demo_mode,
     )
 
-    console.print("[bold blue]Starting Price Monitor Agent...[/bold blue]")
+    mode_label = " [bold yellow](demo)[/bold yellow]" if demo_mode else ""
+    console.print(f"[bold blue]Starting Price Monitor Agent...{mode_label}[/bold blue]")
     console.print(f"  Sources: {len(competitors)}")
     console.print(f"  Report:  {report_format.value}")
     console.print()
@@ -82,25 +109,50 @@ async def _run_agent(competitors: list[CompetitorSource], report_format: ReportF
         console.print(f"  [yellow]Warnings: {len(result['scrape_errors'])}[/yellow]")
 
 
+DEMO_CONFIG = Path("data/demo_competitors.json")
+
+
 @app.command()
 def run(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", "-c", help="Competitors JSON config"),
-    report: str = typer.Option("console", "--report", "-r", help="Report format: console|slack|email|both"),
+    report: str = typer.Option(
+        "console", "--report", "-r", help="Report format: console|slack|email|both"
+    ),
+    demo: bool = typer.Option(
+        False,
+        "--demo",
+        help=(
+            "Run without an OpenAI API key. Uses rule-based analysis and local data only. "
+            "Great for testing the full pipeline offline."
+        ),
+    ),
 ) -> None:
     """Run the price monitoring agent once."""
     settings = get_settings()
     _setup_logging(settings.log_level)
+    _configure_langsmith(settings)
+
+    if demo:
+        # Use zero scrape delay for an instant demo experience
+        os.environ["SCRAPE_DELAY_SECONDS"] = "0"
+        # Default to the demo-specific config (local-only sources) when the
+        # caller hasn't explicitly chosen a config file
+        if config == DEFAULT_CONFIG and DEMO_CONFIG.exists():
+            config = DEMO_CONFIG
+            console.print(f"[dim]Demo mode: using {config}[/dim]")
 
     competitors = _load_competitors(config)
     report_format = ReportFormat(report)
 
-    asyncio.run(_run_agent(competitors, report_format))
+    asyncio.run(_run_agent(competitors, report_format, demo_mode=demo))
 
 
 @app.command()
 def schedule(
     config: Path = typer.Option(DEFAULT_CONFIG, "--config", "-c", help="Competitors JSON config"),
-    report: str = typer.Option("both", "--report", "-r", help="Report format: console|slack|email|both"),
+    report: str = typer.Option(
+        "both", "--report", "-r", help="Report format: console|slack|email|both"
+    ),
 ) -> None:
     """Start the scheduled runner (uses APScheduler with cron)."""
     from apscheduler.schedulers.blocking import BlockingScheduler
@@ -108,6 +160,7 @@ def schedule(
 
     settings = get_settings()
     _setup_logging(settings.log_level)
+    _configure_langsmith(settings)
 
     competitors = _load_competitors(config)
     report_format = ReportFormat(report)
@@ -129,7 +182,7 @@ def schedule(
     scheduler = BlockingScheduler()
     scheduler.add_job(job, trigger)
 
-    console.print(f"[bold green]Scheduler started[/bold green]")
+    console.print("[bold green]Scheduler started[/bold green]")
     console.print(f"  Cron: {settings.schedule_cron}")
     console.print(f"  Next run: {scheduler.get_jobs()[0].next_run_time}")
     console.print("  Press Ctrl+C to stop\n")

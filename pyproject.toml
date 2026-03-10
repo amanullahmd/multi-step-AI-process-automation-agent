@@ -49,6 +49,12 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
 
+[tool.ruff.lint.per-file-ignores]
+# HTML template strings contain long inline styles that cannot be shortened
+"src/agent/tools/email_client.py" = ["E501"]
+# Test data dicts and assertions can be long for clarity
+"tests/test_tools.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

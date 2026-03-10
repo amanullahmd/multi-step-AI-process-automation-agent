@@ -41,6 +41,17 @@ class Settings(BaseSettings):
     # --- Logging ---
     log_level: str = Field(default="INFO")
 
+    # --- Analysis ---
+    min_change_pct: float = Field(
+        default=2.0,
+        description="Minimum price change percentage to report (filters noise)",
+    )
+
+    # --- LangSmith Observability ---
+    langchain_tracing_v2: bool = Field(default=False)
+    langchain_api_key: str = Field(default="")
+    langchain_project: str = Field(default="price-monitor-agent")
+
     @property
     def db_path(self) -> Path:
         return Path(self.database_path)

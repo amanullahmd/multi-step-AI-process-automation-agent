@@ -49,6 +49,13 @@ def test_agent_state_defaults():
     assert state.report_format == ReportFormat.CONSOLE
     assert state.scraped_prices == []
     assert state.total_products_tracked == 0
+    assert state.hitl_approved is False
+
+
+def test_agent_state_hitl_approved():
+    """hitl_approved=True routes to send_notifications (see test_graph.py::test_should_notify_*)."""
+    state = AgentState(hitl_approved=True)
+    assert state.hitl_approved is True
 
 
 def test_agent_state_with_data():

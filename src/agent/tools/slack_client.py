@@ -66,7 +66,9 @@ def build_slack_blocks(
         change_lines = []
         for c in price_changes[:15]:  # Limit to 15 for readability
             if c["direction"] == "new":
-                change_lines.append(f"*NEW* {c['competitor']} — {c['product']}: ${c['new_price']:.2f}")
+                change_lines.append(
+                    f"*NEW* {c['competitor']} — {c['product']}: ${c['new_price']:.2f}"
+                )
             else:
                 arrow = ":arrow_up:" if c["direction"] == "up" else ":arrow_down:"
                 change_lines.append(
