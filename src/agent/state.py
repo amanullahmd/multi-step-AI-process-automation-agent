@@ -73,6 +73,10 @@ class AgentState(BaseModel):
     analysis_summary: str = ""
     key_insights: list[str] = Field(default_factory=list)
 
+    # Demo / offline mode — skips all external API/LLM calls
+    # Set to True via the --demo CLI flag to run without any API keys.
+    demo_mode: bool = False
+
     # Human-in-the-Loop review
     # When hitl_approved is True the graph skips the interrupt checkpoint.
     # Set to True programmatically to bypass review (e.g. in automated runs).
