@@ -1,0 +1,25 @@
+{
+  "competitors": [
+    {
+      "name": "FakeStore",
+      "source_type": "api",
+      "url": "https://fakestoreapi.com/products",
+      "product_key": "title",
+      "price_key": "price"
+    },
+    {
+      "name": "DummyJSON",
+      "source_type": "api",
+      "url": "https://dummyjson.com/products?limit=20",
+      "product_key": "title",
+      "price_key": "price"
+    },
+    {
+      "name": "LocalCompetitor",
+      "source_type": "file",
+      "url": "data/local_prices.json",
+      "product_key": "name",
+      "price_key": "price"
+    }
+  ]
+}

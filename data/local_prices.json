@@ -1,0 +1,14 @@
+{
+  "products": [
+    {"name": "Wireless Bluetooth Headphones", "price": 59.99, "category": "Electronics"},
+    {"name": "USB-C Charging Cable 6ft", "price": 12.99, "category": "Electronics"},
+    {"name": "Laptop Stand Adjustable", "price": 34.99, "category": "Office"},
+    {"name": "Mechanical Keyboard RGB", "price": 89.99, "category": "Electronics"},
+    {"name": "Ergonomic Mouse Pad", "price": 15.99, "category": "Office"},
+    {"name": "Portable SSD 1TB", "price": 79.99, "category": "Storage"},
+    {"name": "Webcam 1080p HD", "price": 44.99, "category": "Electronics"},
+    {"name": "Monitor Light Bar", "price": 29.99, "category": "Office"},
+    {"name": "Desk Organizer Set", "price": 22.99, "category": "Office"},
+    {"name": "Noise Cancelling Earbuds", "price": 69.99, "category": "Electronics"}
+  ]
+}

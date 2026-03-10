@@ -1,0 +1,36 @@
+{
+  "_comment": "Sample competitor configuration — copy and customize for your use case",
+  "competitors": [
+    {
+      "name": "FakeStore",
+      "source_type": "api",
+      "url": "https://fakestoreapi.com/products",
+      "product_key": "title",
+      "price_key": "price",
+      "_note": "Free mock e-commerce API — good for testing"
+    },
+    {
+      "name": "DummyJSON",
+      "source_type": "api",
+      "url": "https://dummyjson.com/products?limit=20",
+      "product_key": "title",
+      "price_key": "price",
+      "_note": "Another free mock product API with rich data"
+    },
+    {
+      "name": "LocalData",
+      "source_type": "file",
+      "url": "data/local_prices.json",
+      "product_key": "name",
+      "price_key": "price",
+      "_note": "Local JSON file — great for demos and testing"
+    },
+    {
+      "name": "ExampleWebsite",
+      "source_type": "web",
+      "url": "https://example.com/products",
+      "selector": ".product-title|.product-price",
+      "_note": "Web scraping — selector format: 'product_css|price_css'"
+    }
+  ]
+}
