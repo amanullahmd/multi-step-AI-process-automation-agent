@@ -1,10 +1,10 @@
 """Pydantic state models for the LangGraph agent."""
 
+import operator
 from datetime import datetime
 from enum import Enum
 from typing import Annotated
 
-import operator
 from pydantic import BaseModel, Field
 
 
@@ -72,6 +72,11 @@ class AgentState(BaseModel):
     # LLM analysis
     analysis_summary: str = ""
     key_insights: list[str] = Field(default_factory=list)
+
+    # Human-in-the-Loop review
+    # When hitl_approved is True the graph skips the interrupt checkpoint.
+    # Set to True programmatically to bypass review (e.g. in automated runs).
+    hitl_approved: bool = False
 
     # Report output
     report_html: str = ""

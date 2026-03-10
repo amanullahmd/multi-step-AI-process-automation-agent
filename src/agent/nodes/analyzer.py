@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
 from agent.state import AgentState
@@ -11,7 +11,8 @@ from agent.utils.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-ANALYSIS_PROMPT = """You are a competitive pricing analyst. Analyze the following price monitoring data and provide actionable insights.
+ANALYSIS_PROMPT = """You are a competitive pricing analyst. \
+Analyze the following price monitoring data and provide actionable insights.
 
 ## Current Price Snapshot
 {price_snapshot}

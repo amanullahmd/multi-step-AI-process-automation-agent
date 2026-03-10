@@ -65,7 +65,10 @@ async def send_notifications(state: AgentState) -> dict[str, Any]:
             success = send_slack_report(
                 webhook_url=settings.slack_webhook_url,
                 blocks=state.report_slack_blocks,
-                fallback_text=f"Price Monitor Report — {state.total_products_tracked} products tracked, {len(state.price_changes)} changes",
+                fallback_text=(
+                    f"Price Monitor Report — {state.total_products_tracked} products tracked,"
+                    f" {len(state.price_changes)} changes"
+                ),
             )
             if success:
                 sent.append("slack")

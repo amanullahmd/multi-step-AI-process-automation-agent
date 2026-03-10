@@ -1,6 +1,6 @@
 """Tests for the LangGraph pipeline structure."""
 
-from agent.graph import build_graph, should_analyze
+from agent.graph import build_graph, should_analyze, should_notify
 from agent.state import AgentState, PriceRecord
 
 
@@ -30,3 +30,24 @@ def test_graph_has_expected_nodes():
     # The compiled graph should be invocable
     assert hasattr(graph, "ainvoke")
     assert hasattr(graph, "invoke")
+
+
+def test_should_notify_approved():
+    """HITL: already-approved state bypasses human review."""
+    state = AgentState(hitl_approved=True)
+    assert should_notify(state) == "notify"
+
+
+def test_should_notify_not_approved():
+    """HITL: un-approved state routes to human review."""
+    state = AgentState(hitl_approved=False)
+    assert should_notify(state) == "review"
+
+
+def test_hitl_graph_compiles():
+    """HITL graph with MemorySaver checkpointer compiles without errors."""
+    from langgraph.checkpoint.memory import MemorySaver
+
+    graph = build_graph(checkpointer=MemorySaver())
+    assert graph is not None
+    assert hasattr(graph, "ainvoke")
